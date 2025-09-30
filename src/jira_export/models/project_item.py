@@ -11,19 +11,9 @@ class ProjectItem:
     assignee: str | None
     reporter: str | None
     description: str | None
-    content: str | None
 
     @classmethod
     def from_issue(cls, issue: Issue) -> "ProjectItem":
-        content = (
-            issue.fields.customfield_10150
-            if hasattr(issue.fields, "customfield_10150")
-            else None
-        )
-
-        if content == "WHAT :\r\n\r\n\r\nWHY :\r\n\r\n\r\nCoS :\r\n- ":
-            content = None
-
         return cls(
             key=issue.key,
             summary=issue.fields.summary,
@@ -35,5 +25,4 @@ class ProjectItem:
             if issue.fields.reporter
             else None,
             description=issue.fields.description,
-            content=content,
         )
