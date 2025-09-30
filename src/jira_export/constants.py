@@ -1,1 +1,1 @@
-APP_NAME = "jira-sync"
+APP_NAME = "jira-export"
