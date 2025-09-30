@@ -1,3 +1,6 @@
+import logging
+import sys
+from pathlib import Path
 from typing import Annotated
 
 import typer
@@ -6,9 +9,12 @@ from rich.table import Table
 
 from jira_export.console import console
 from jira_export.models.app_state import AppState
+from jira_export.models.config import ProjectNotFoundError
 from jira_export.models.project import LoadedProject
 
 projects = typer.Typer(name="projects", no_args_is_help=True)
+
+logger = logging.getLogger(__name__)
 
 
 @projects.command("list")
@@ -83,3 +89,35 @@ def add_project(
     config.save(app_state.config_file)
 
     console.print(f"[green]Success:[/green] Project '{project_id}' added.")
+
+
+@projects.command("test")
+def test_project(
+    ctx: typer.Context,
+    project_id: Annotated[
+        str, typer.Option("--project-id", "-p", help="Unique project ID", prompt=True)
+    ],
+):
+    app_state: AppState = ctx.obj
+    config = app_state.load_config()
+
+    try:
+        project = config.get_and_load_project(project_id)
+    except ProjectNotFoundError as e:
+        logger.error(e)
+        logger.info("Available projects: %s", ", ".join(config.projects.keys()))
+        logger.info(
+            "Use '%s projects add -p %s' to add it.", Path(sys.argv[0]).name, project_id
+        )
+        raise typer.Exit(code=1)
+
+    jira = project.get_jira()
+
+    try:
+        my_self = jira.myself()
+        console.print(
+            f"[green]Success:[/green] Authenticated as '{my_self['displayName']}'"
+        )
+    except Exception as e:
+        logger.error("Failed to authenticate: %s", e)
+        raise typer.Exit(code=1)
