@@ -1,0 +1,53 @@
+[project]
+name = "jira-export"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "jira>=3.10.5",
+    "keyring>=25.6.0",
+    "platformdirs>=4.4.0",
+    "pydantic>=2.11.9",
+    "rich>=14.1.0",
+    "toml>=0.10.2",
+    "typer>=0.19.2",
+]
+
+[dependency-groups]
+dev = [
+    "commitizen>=4.9.1",
+    "pre-commit>=4.3.0",
+    "ruff>=0.13.2",
+]
+
+[build-system]
+requires = ["uv_build>=0.8.22,<0.9.0"]
+build-backend = "uv_build"
+
+[project.scripts]
+jira-export = "jira_export.__main__:main"
+
+[tool.ruff]
+include = ["src/**/*.py", "tests/**/*.py"]
+
+[tool.ruff.lint]
+preview = true
+extend-select = ["S", "I", "FBT", "A", "COM", "DTZ", "ISC", "LOG", "G", "PIE", "T20", "PT", "RET", "SIM", "TID", "PTH", "UP", "DOC"]
+ignore = ["COM812"]
+
+[tool.ruff.lint.per-file-ignores]
+"**/tests/**" = ["S"]
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"src".msg = "Do not use src imports. Imports are relative to the src directory and should not include the 'src.' prefix."
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+tag_format = "$version"
+version_scheme = "pep440"
+version_provider = "pep621"
+update_changelog_on_bump = true

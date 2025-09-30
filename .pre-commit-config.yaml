@@ -1,0 +1,24 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: check-added-large-files
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-toml
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.11.8
+    hooks:
+      - id: ruff
+        types_or: [ python, pyi ]
+      - id: ruff-format
+        types_or: [ python, pyi ]
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0.8.22
+    hooks:
+      - id: uv-lock
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v4.4.1
+    hooks:
+    - id: commitizen
+      stages: [commit-msg]
