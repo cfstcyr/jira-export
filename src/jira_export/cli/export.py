@@ -8,7 +8,6 @@ from jira.client import ResultList
 from rich.progress import Progress
 
 from jira_export.models.app_state import AppState
-from jira_export.models.config import ProjectNotFoundError
 from jira_export.models.project_item import ProjectItem
 
 export = typer.Typer(name="export")
@@ -50,12 +49,7 @@ def export_callback(
 ):
     app_state: AppState = ctx.obj
     config = app_state.load_config()
-
-    try:
-        project = config.get_and_load_project(project_id)
-    except ProjectNotFoundError as e:
-        e.render(config)
-        raise typer.Exit(code=1)
+    project = config.get_and_load_project(project_id)
 
     jira = project.get_jira()
     all_issues: list[Issue] = []

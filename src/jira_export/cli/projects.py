@@ -2,12 +2,12 @@ import logging
 from typing import Annotated
 
 import typer
+from click.exceptions import UsageError
 from pydantic import SecretStr
 from rich.table import Table
 
 from jira_export.console import console
 from jira_export.models.app_state import AppState
-from jira_export.models.config import ProjectNotFoundError
 from jira_export.models.project import LoadedProject
 
 projects = typer.Typer(name="projects", no_args_is_help=True)
@@ -98,12 +98,7 @@ def test_project(
 ):
     app_state: AppState = ctx.obj
     config = app_state.load_config()
-
-    try:
-        project = config.get_and_load_project(project_id)
-    except ProjectNotFoundError as e:
-        e.render(config)
-        raise typer.Exit(code=1)
+    project = config.get_and_load_project(project_id)
 
     jira = project.get_jira()
 
@@ -113,5 +108,4 @@ def test_project(
             f"[green]Success:[/green] Authenticated as '{my_self['displayName']}'"
         )
     except Exception as e:
-        logger.error("Failed to authenticate: %s", e)
-        raise typer.Exit(code=1)
+        raise UsageError(f"Failed to authenticate: {e}", ctx=ctx)
