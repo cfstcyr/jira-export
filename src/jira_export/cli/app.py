@@ -3,7 +3,6 @@ from pathlib import Path
 from typing import Annotated
 
 import typer
-from platformdirs import user_config_dir
 
 from jira_export.cli.export import export
 from jira_export.cli.projects import projects
@@ -28,7 +27,7 @@ def main(
     ] = False,
     config_file: Annotated[
         str, typer.Option("--config-file", "-c", help="Configuration file")
-    ] = user_config_dir(APP_NAME) + "/config.toml",
+    ] = typer.get_app_dir(APP_NAME) + "/config.toml",
 ):
     setup_logs(verbose=verbose)
     ctx.obj = AppState(config_file=Path(config_file))

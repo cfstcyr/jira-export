@@ -7,7 +7,6 @@ requires-python = ">=3.13"
 dependencies = [
     "jira>=3.10.5",
     "keyring>=25.6.0",
-    "platformdirs>=4.4.0",
     "pydantic>=2.11.9",
     "rich>=14.1.0",
     "toml>=0.10.2",
