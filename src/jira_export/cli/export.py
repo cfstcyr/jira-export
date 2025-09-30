@@ -71,7 +71,6 @@ def export_callback(
     if jql:
         query = f"{query} and ({jql})"
 
-
     with Progress(transient=True) as progress:
         count = jira.approximate_issue_count(query)
         task = progress.add_task("Fetching issues...", total=count)
@@ -94,7 +93,7 @@ def export_callback(
                 break
             if not issues.nextPageToken:
                 break
-            
+
             progress.update(task, advance=len(issues))
 
     output: str
