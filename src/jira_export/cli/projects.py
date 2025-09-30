@@ -89,6 +89,31 @@ def add_project(
     console.print(f"[green]Success:[/green] Project '{project_id}' added.")
 
 
+@projects.command("remove")
+def remove_project(
+    ctx: typer.Context,
+    project_id: Annotated[
+        str, typer.Option("--project-id", "-p", help="Unique project ID", prompt=True)
+    ],
+):
+    app_state: AppState = ctx.obj
+    config = app_state.load_config()
+    project = config.get_project(project_id)
+
+    console.print(project.to_rich(project_id=project_id))
+
+    if not typer.confirm(
+        "Are you sure you want to remove the project? This will also delete the stored API key.",
+        abort=True,
+    ):
+        raise typer.Exit(code=1)
+
+    config.remove_project(project_id)
+    config.save(app_state.config_file)
+
+    console.print(f"[green]Success:[/green] Project '{project_id}' removed.")
+
+
 @projects.command("test")
 def test_project(
     ctx: typer.Context,

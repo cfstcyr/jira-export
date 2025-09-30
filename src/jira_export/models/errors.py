@@ -21,7 +21,7 @@ class ProjectNotFoundError(UsageError):
             "\n\n"
             f"[yellow]Available projects: [italic]{', '.join(config.projects.keys())}[/italic][/yellow]"
             "\n"
-            f"Use \"{Path(sys.argv[0]).name} projects add -p {project_id}\" to add it.",
+            f'Use "{Path(sys.argv[0]).name} projects add -p {project_id}" to add it.',
         )
 
         super().__init__(

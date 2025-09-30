@@ -40,5 +40,10 @@ class Config(BaseModel):
 
         return project
 
+    def remove_project(self, project_id: str):
+        project = self.get_project(project_id)
+        project.delete_api_key()
+        del self.projects[project_id]
+
     def get_and_load_project(self, project_id: str) -> LoadedProject:
         return self.get_project(project_id).load()
