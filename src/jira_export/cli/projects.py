@@ -1,6 +1,4 @@
 import logging
-import sys
-from pathlib import Path
 from typing import Annotated
 
 import typer
@@ -104,11 +102,7 @@ def test_project(
     try:
         project = config.get_and_load_project(project_id)
     except ProjectNotFoundError as e:
-        logger.error(e)
-        logger.info("Available projects: %s", ", ".join(config.projects.keys()))
-        logger.info(
-            "Use '%s projects add -p %s' to add it.", Path(sys.argv[0]).name, project_id
-        )
+        e.render(config)
         raise typer.Exit(code=1)
 
     jira = project.get_jira()
