@@ -13,6 +13,7 @@ from jira_export.utils.setup_logs import setup_logs
 app = typer.Typer(no_args_is_help=True)
 
 app.add_typer(projects)
+app.add_typer(projects, name="project", hidden=True)
 app.add_typer(export)
 
 logger = logging.getLogger(__name__)
