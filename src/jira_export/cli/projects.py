@@ -78,7 +78,8 @@ def add_project(
         raise typer.Exit(code=1)
     
     if domain.startswith("http"):
-        raise UsageError("Domain should not include 'http' or 'https'. Only include the base domain (e.g., example.atlassian.net)", ctx=ctx)
+        typer.echo("Domain should not include 'http' or 'https'. Only include the base domain (e.g., example.atlassian.net)")
+        raise typer.Exit(code=2)
 
     new_project = LoadedProject(
         user=user,
@@ -129,12 +130,13 @@ def ping_project(
     project_id = prompt_project_id(project_id, ctx=ctx)
     project = config.get_and_load_project(project_id)
 
-    jira = project.get_jira()
-
     try:
+        jira = project.get_jira()
         my_self = jira.myself()
         console.print(
             f"[green]Success:[/green] Authenticated as '{my_self['displayName']}'"
         )
+        return
     except Exception as e:
-        raise UsageError(f"Failed to authenticate: {e}", ctx=ctx)
+        typer.echo(f"Failed to authenticate: {e}")
+        raise typer.Exit(code=2)

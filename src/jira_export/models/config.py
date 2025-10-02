@@ -20,8 +20,12 @@ class Config(BaseModel):
             return cls()
 
         logger.debug("Loading config file %s", path)
-        with path.open() as f:
-            data = toml.load(f)
+        try:
+            data = toml.loads(path.read_text())
+        except toml.TomlDecodeError as exc:
+            raise ValueError(
+                f"Failed to parse config file '{path}': {exc}"
+            ) from exc
 
         return cls.model_validate(data)
 
@@ -30,7 +34,7 @@ class Config(BaseModel):
 
         logger.debug("Saving config file %s", path)
         with path.open("w") as f:
-            toml.dump(self.model_dump(), f)
+            toml.dump(self.model_dump(exclude_none=True), f)
 
     def get_project(self, project_id: str) -> Project:
         project = self.projects.get(project_id)

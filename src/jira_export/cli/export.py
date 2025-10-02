@@ -66,7 +66,7 @@ def export_callback(
 
         while True:
             logger.debug("Fetching issues, nextToken=%s", nextToken)
-            issues = cast(
+            result = cast(
                 ResultList[Issue],
                 jira.enhanced_search_issues(
                     query,
@@ -75,15 +75,17 @@ def export_callback(
                 ),
             )
 
+            issues = list(result)
             all_issues.extend(issues)
-            nextToken = issues.nextPageToken
+            nextToken = result.nextPageToken if issues else None
 
             if not issues:
                 break
-            if not issues.nextPageToken:
-                break
 
             progress.update(task, advance=len(issues))
+
+            if not nextToken:
+                break
 
     output: str
     output_dict = {

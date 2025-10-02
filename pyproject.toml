@@ -19,6 +19,7 @@ dev = [
     "commitizen>=4.9.1",
     "pre-commit>=4.3.0",
     "pytest>=8.4.2",
+    "pytest-cov>=4.0.0",
     "ruff>=0.13.2",
 ]
 
@@ -52,3 +53,18 @@ tag_format = "$version"
 version_scheme = "pep440"
 version_provider = "pep621"
 update_changelog_on_bump = true
+
+[tool.coverage.run]
+source = ["src"]
+omit = ["*/tests/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]

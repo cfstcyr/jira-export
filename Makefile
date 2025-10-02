@@ -1,7 +1,7 @@
 DEPS_MANAGER := uv
 EXECUTOR := $(DEPS_MANAGER) run
 
-.PHONY: help pc pre-commit pci pre-commit-install lint format lx fx lint-fix format-fix
+.PHONY: help pc pre-commit pci pre-commit-install lint format lx fx lint-fix format-fix test
 
 help: ## Show this help.
 	@echo "Available targets:"
@@ -31,3 +31,6 @@ lint-fix:
 fx: format-fix
 format-fix:
 	$(EXECUTOR) ruff format $(ARGS)
+
+test:
+	$(EXECUTOR) pytest
