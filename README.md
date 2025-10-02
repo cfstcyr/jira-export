@@ -68,7 +68,8 @@ your keyring.
 
 ## Export Issues
 Run the exporter with a saved `project_id`. Results are printed to `stdout`, so
-pipe or redirect as needed.
+pipe or redirect as needed. If you omit `--project-id`, the CLI prompts you to
+select from the configured projects.
 
 ```bash
 jira-export export --project-id product > product.toml

@@ -1,6 +1,7 @@
 import logging
 from typing import Annotated
 
+import questionary
 import typer
 from click.exceptions import UsageError
 from pydantic import SecretStr
@@ -9,6 +10,7 @@ from rich.table import Table
 from jira_export.console import console
 from jira_export.models.app_state import AppState
 from jira_export.models.project import LoadedProject
+from jira_export.utils.options import ProjectId, prompt_project_id
 
 projects = typer.Typer(name="projects", no_args_is_help=True)
 
@@ -74,6 +76,9 @@ def add_project(
         f"Project ID '{project_id}' already exists. Overwrite?", abort=True
     ):
         raise typer.Exit(code=1)
+    
+    if domain.startswith("http"):
+        raise UsageError("Domain should not include 'http' or 'https'. Only include the base domain (e.g., example.atlassian.net)", ctx=ctx)
 
     new_project = LoadedProject(
         user=user,
@@ -92,20 +97,19 @@ def add_project(
 @projects.command("remove")
 def remove_project(
     ctx: typer.Context,
-    project_id: Annotated[
-        str, typer.Option("--project-id", "-p", help="Unique project ID", prompt=True)
-    ],
+    project_id: ProjectId = None,
 ):
     app_state: AppState = ctx.obj
     config = app_state.load_config()
+
+    project_id = prompt_project_id(project_id, ctx=ctx)
     project = config.get_project(project_id)
 
     console.print(project.to_rich(project_id=project_id))
 
-    if not typer.confirm(
+    if not questionary.confirm(
         "Are you sure you want to remove the project? This will also delete the stored API key.",
-        abort=True,
-    ):
+    ).ask():
         raise typer.Exit(code=1)
 
     config.remove_project(project_id)
@@ -114,15 +118,15 @@ def remove_project(
     console.print(f"[green]Success:[/green] Project '{project_id}' removed.")
 
 
-@projects.command("test")
-def test_project(
+@projects.command("ping")
+def ping_project(
     ctx: typer.Context,
-    project_id: Annotated[
-        str, typer.Option("--project-id", "-p", help="Unique project ID", prompt=True)
-    ],
+    project_id: ProjectId = None,
 ):
     app_state: AppState = ctx.obj
     config = app_state.load_config()
+
+    project_id = prompt_project_id(project_id, ctx=ctx)
     project = config.get_and_load_project(project_id)
 
     jira = project.get_jira()

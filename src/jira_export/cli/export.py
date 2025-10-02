@@ -9,6 +9,7 @@ from rich.progress import Progress
 
 from jira_export.models.app_state import AppState
 from jira_export.models.project_item import ProjectItem
+from jira_export.utils.options import ProjectId, prompt_project_id
 
 export = typer.Typer(name="export")
 
@@ -23,9 +24,7 @@ class OutputFormat(Enum):
 @export.callback(invoke_without_command=True)
 def export_callback(
     ctx: typer.Context,
-    project_id: Annotated[
-        str, typer.Option("--project-id", "-p", help="Jira project ID", prompt=True)
-    ],
+    project_id: ProjectId = None,
     jql: Annotated[
         str | None,
         typer.Option(
@@ -47,6 +46,8 @@ def export_callback(
         ),
     ] = OutputFormat.TOML,
 ):
+    project_id = prompt_project_id(project_id, ctx=ctx)
+
     app_state: AppState = ctx.obj
     config = app_state.load_config()
     project = config.get_and_load_project(project_id)
