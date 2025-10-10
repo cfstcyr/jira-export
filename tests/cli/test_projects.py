@@ -4,7 +4,6 @@ from unittest.mock import patch
 from typer.testing import CliRunner
 
 from jira_export.cli.app import app
-from jira_export.models.app_state import AppState
 from jira_export.models.config import Config
 from jira_export.models.project import Project
 
@@ -13,9 +12,13 @@ runner = CliRunner()
 
 def _config_path(tmp_path):
     config_file = tmp_path / "config.toml"
-    config = Config(projects={
-        "alpha": Project(user="test@example.com", domain="test.atlassian.net", project="TEST"),
-    })
+    config = Config(
+        projects={
+            "alpha": Project(
+                user="test@example.com", domain="test.atlassian.net", project="TEST"
+            ),
+        }
+    )
     config.save(config_file)
     return config_file
 
@@ -95,7 +98,10 @@ def test_add_project_invalid_domain(tmp_path):
 
 def test_remove_project_success(tmp_path):
     config_file = _config_path(tmp_path)
-    with patch("keyring.delete_password"), patch("questionary.confirm", return_value=SimpleNamespace(ask=lambda: True)):
+    with (
+        patch("keyring.delete_password"),
+        patch("questionary.confirm", return_value=SimpleNamespace(ask=lambda: True)),
+    ):
         result = runner.invoke(
             app,
             [
@@ -130,8 +136,10 @@ def test_remove_project_cancel(tmp_path):
 
 def test_ping_project_success(tmp_path):
     config_file = _config_path(tmp_path)
-    with patch("jira_export.models.project.keyring.get_password", return_value="secret"), \
-         patch("jira_export.models.project.JIRA") as mock_jira:
+    with (
+        patch("jira_export.models.project.keyring.get_password", return_value="secret"),
+        patch("jira_export.models.project.JIRA") as mock_jira,
+    ):
         mock_instance = mock_jira.return_value
         mock_instance.myself.return_value = {"displayName": "Test User"}
         result = runner.invoke(
@@ -152,7 +160,10 @@ def test_ping_project_success(tmp_path):
 
 def test_ping_project_fail(tmp_path):
     config_file = _config_path(tmp_path)
-    with patch("keyring.get_password", return_value="secret"), patch("jira.JIRA") as mock_jira:
+    with (
+        patch("keyring.get_password", return_value="secret"),
+        patch("jira.JIRA") as mock_jira,
+    ):
         mock_instance = mock_jira.return_value
         mock_instance.myself.side_effect = Exception("Auth failed")
         result = runner.invoke(
@@ -167,4 +178,4 @@ def test_ping_project_fail(tmp_path):
             ],
         )
     assert result.exit_code == 2
-    assert "Failed to authenticate" in result.stdout
+    assert "Failed to ping project" in result.stdout

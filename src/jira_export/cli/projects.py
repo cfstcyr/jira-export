@@ -3,8 +3,8 @@ from typing import Annotated
 
 import questionary
 import typer
-from click.exceptions import UsageError
 from pydantic import SecretStr
+from rich.panel import Panel
 from rich.table import Table
 
 from jira_export.console import console
@@ -76,9 +76,11 @@ def add_project(
         f"Project ID '{project_id}' already exists. Overwrite?", abort=True
     ):
         raise typer.Exit(code=1)
-    
+
     if domain.startswith("http"):
-        typer.echo("Domain should not include 'http' or 'https'. Only include the base domain (e.g., example.atlassian.net)")
+        typer.echo(
+            "Domain should not include 'http' or 'https'. Only include the base domain (e.g., example.atlassian.net)"
+        )
         raise typer.Exit(code=2)
 
     new_project = LoadedProject(
@@ -138,5 +140,11 @@ def ping_project(
         )
         return
     except Exception as e:
-        typer.echo(f"Failed to authenticate: {e}")
+        console.print(
+            Panel(
+                f"Failed to ping project: {e}",
+                title="[red]Error[/red]",
+                border_style="red",
+            )
+        )
         raise typer.Exit(code=2)
